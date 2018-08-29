@@ -10,7 +10,7 @@
 
 ### 2. low-poly 背景动图
 
-[demo]](/static/lowPoly.html)
+[demo](/static/lowPoly.html)
 
 ### 项目脚手架说明
 
