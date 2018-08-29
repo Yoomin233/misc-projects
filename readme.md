@@ -2,7 +2,7 @@
 
 ### 1. 推箱子小游戏
 
-[点此处]('./static/index.html')
+[点此处](/static/index.html)
 
 ```javascript
 // 关卡懒得设计了...
@@ -10,7 +10,7 @@
 
 ### 2. low-poly 背景动图
 
-[demo]]('./static/lowPoly.html')
+[demo]](/static/lowPoly.html)
 
 ### 项目脚手架说明
 

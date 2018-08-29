@@ -47,7 +47,7 @@ div.mover, div.crate {
   border-radius: 50%;
 }
 div.mover {
-  background: url('/220px-Patrick_Star.png') no-repeat contain;
+  background: url('./220px-Patrick_Star.png') center / contain no-repeat;
 }
 div.crate {
 /*   border-radius: 40%; */
