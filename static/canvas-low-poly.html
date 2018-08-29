@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./low-poly.css" type="text/css">
+  <title>Document</title>
+</head>
+
+<body>
+  <canvas style='width: 100vw; height: 200px;'></canvas>
+  <script>
+    (function () {
+
+      const connection = new WebSocket('ws://localhost:8888');
+      connection.addEventListener('open', e => {
+        console.log('dev ws connected!');
+      })
+      connection.addEventListener('message', e => {
+        if (event.data === 'file changed') {
+          setTimeout(location.reload.bind(location), 500);
+        }
+      })
+      const canvas = document.getElementsByTagName('canvas')[0];
+      const context = canvas.getContext('2d');
+      const canvasDimensions = canvas.getBoundingClientRect();
+      canvas.width = canvasDimensions.width;
+      canvas.height = canvasDimensions.height;
+      // const points = [];
+      const cellSize = 100;
+      const totalWidth = canvas.width + cellSize * 2;
+      const totalHeight = canvas.height + cellSize * 2;
+      const maxCols = Math.ceil(totalWidth / cellSize) + 2;
+      const maxRows = Math.ceil(totalHeight / cellSize) + 2;
+
+      // setup background
+      function drawBG(canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.witth, canvas.height); // clear
+        ctx.globalCompositeOperation = 'multiply';
+
+        // add linear gradient background
+        const bg = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        bg.addColorStop(0, "#85c");
+        bg.addColorStop(1, "#85c");
+        ctx.fillStyle = bg;
+        ctx.beginPath();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+
+        // add bg2
+        const bg2 = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        bg2.addColorStop(0, "#fff");
+        bg2.addColorStop(1, "#999");
+        ctx.fillStyle = bg2;
+        ctx.beginPath();
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalCompositeOperation = "source-over";
+      }
+
+
+      function generatePoints(size) {
+        const varianceParam = 0.26;
+        const res = [];
+        let row = 0, col = 0;
+        for (let i = 0; i < size; i++) {
+          const point = {};
+          if (row % 2 === 0) {
+            point.x = (col * cellSize) - cellSize;
+            point.x = point.x + (Math.random() - 0.5) * cellSize * 2 * varianceParam;
+          } else {
+            point.x = (col * cellSize) - cellSize - cellSize / 2;
+            point.x = point.x + (Math.random() - 0.5) * cellSize * 2 * varianceParam;
+          }
+          point.y = (row * cellSize * 0.866) - cellSize;
+          point.y = point.y + (Math.random() - 0.5) * cellSize * 2 * varianceParam;
+          point.r = row;
+          point.c = col;
+          point.originalX = point.x;
+          point.originalY = point.y;
+          point.moveDirection = Math.random() - 0.5 < 0 ? (Math.random() - 0.5 > 0 ? '+y' : '-y') : (Math.random() - 0.5 > 0 ? '+x' : '-x');
+          // transparency settings
+          point.fillBase = Math.floor(Math.random() * 255);
+          res.push(point);
+          // col += 1;
+          if ((i + 1) % maxCols === 0) {
+            row += 1;
+            col = 0;
+          } else {
+            col += 1;
+          }
+        }
+        return res;
+      }
+      const canvasProxy = new Proxy({ context: context }, {
+        get(target, name) {
+          return function (...args) {
+            target.context[name](...args);
+            return canvasProxy;
+          }
+        }
+      })
+      function drawTriangle(points) {
+        for (let i = 0; i < points.length; i++) {
+          // 最后一列和最后一行不draw
+          if ((i + 1) % maxCols === 0 || i - ((maxRows - 1) * maxCols) >= 0) {
+            continue;
+          } else {
+            // const currentPoint = points[i];
+            const rightPoint = points[i + 1];
+            const belowPoint = points[i + maxCols];
+            const rightBelowPoint = points[i + maxCols + 1];
+
+            const currentPoint = points[i];
+            // const rightPoint = {x: 150, y: 100};
+            // const belowPoint = {x: 100, y: 150};
+            // const rightBelowPoint = {x: 150, y: 150};
+            context.fillStyle = `rgba(${currentPoint.fillBase}, ${currentPoint.fillBase}, ${currentPoint.fillBase}, 0.1)`;
+            canvasProxy.beginPath().moveTo(currentPoint.x, currentPoint.y).lineTo(rightPoint.x, rightPoint.y).lineTo(rightBelowPoint.x, rightBelowPoint.y).lineTo(currentPoint.x, currentPoint.y).closePath().fill();
+
+            context.fillStyle = `rgba(${rightBelowPoint.fillBase}, ${rightBelowPoint.fillBase}, ${rightBelowPoint.fillBase}, 0.1)`;
+            canvasProxy.beginPath().moveTo(currentPoint.x, currentPoint.y).lineTo(belowPoint.x, belowPoint.y).lineTo(rightBelowPoint.x, rightBelowPoint.y).lineTo(currentPoint.x, currentPoint.y).closePath().fill();
+          }
+        }
+      }
+      function init(drawOnly) {
+        // need to regenerate points...
+        let points;
+        if (!drawOnly) {
+          points = generatePoints(maxCols * maxRows);
+          // console.log(points);
+        }
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawBG(canvas);
+        drawTriangle(points)
+        console.log(points)
+
+        setInterval(function () { move(points) }, 16.66)
+      }
+      init(false);
+      // drawBG(canvas)
+      const moveArea = 20;
+      function move(points) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawBG(canvas);
+        // console.log(points);
+        for (let i = 0; i < points.length; i++) {
+          let rand = Number((Math.random()).toFixed(2)) / 10;
+          const currentPoint = points[i];
+          if (currentPoint.moveDirection === '+y') {
+            currentPoint['y'] += rand;
+            if (currentPoint['y'] - currentPoint['originalY'] > moveArea) {
+              currentPoint.moveDirection = '-y';
+            }
+          } else if (currentPoint.moveDirection === '-y') {
+            currentPoint['y'] -= rand;
+            if (currentPoint['originalY'] - currentPoint['y'] > moveArea) {
+              currentPoint.moveDirection = '+y';
+            }
+          } else if (currentPoint.moveDirection === '+x') {
+            currentPoint['x'] += rand;
+            if (currentPoint['x'] - currentPoint['originalX'] > moveArea) {
+              currentPoint.moveDirection = '-x';
+            }
+          } else if (currentPoint.moveDirection === '-x') {
+            currentPoint['x'] -= rand;
+            if (currentPoint['originalX'] - currentPoint['x'] > moveArea) {
+              currentPoint.moveDirection = '+x';
+            }
+          }
+        }
+        drawTriangle(points);
+      }
+
+    })()
+  </script>
+</body>
+
+</html>
