@@ -6,15 +6,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <link rel="stylesheet" href="./low-poly.css" type="text/css">
-  <title>Document</title>
+  <link rel="stylesheet" href="./prism.css">
+  <title>用canvas制作low-poly背景动图</title>
 </head>
 
 <body>
   <canvas style='width: 100vw; height: 200px;'></canvas>
+  <h1 style='width: 100vw; height: 200px;position: absolute; left: 0; top: 0;color: #fff; text-align: center;padding: 40px; box-sizing: border-box;text-shadow: 0px 0px 5px rgba(0,0,0,0.5);'>用canvas制作low-poly背景动图</h1>
+  <p>
+    日前在网上闲逛时看到一个很有意思的东西: low-poly背景图. 效果如下:
+  </p>
+  <p data-height="265" data-theme-id="0" data-slug-hash="vgmxmj" data-default-tab="js,result" data-user="cojdev" data-pen-title="Low Poly Background Generator"
+    class="codepen">See the Pen <a href="https://codepen.io/cojdev/pen/vgmxmj/">Low Poly Background Generator</a> by Charles
+    Ojukwu (<a href="https://codepen.io/cojdev">@cojdev</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+  <p>就模仿着写了一个, 顺便加上了动效, 看上去更有感觉</p>
+  <p>图上的三角形方块怎么展示? 先确定好区域再调用<code>context.fill</code>么? 那背景颜色变了岂不是要改很多地方? 这里用了一个小技巧, 就是三角形方块本身是无色的, 只是透明度不同, 这样就可以依据背景的颜色来展现不同的颜色深浅啦~改变颜色时也只需要改背景色就可以,
+    是不是很方便呢. PS: 这个技巧也大量更改主题等地方.</p>
+  <p>首先是画背景, 为了实现两重背景(分别是左右渐变、上下渐变)渐变, 代码如下</p>
+  <pre><code class='language-javascript'>
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.witth, canvas.height); // clear
+  ctx.globalCompositeOperation = 'multiply';
+
+  // add linear gradient background
+  const bg = ctx.createLinearGradient(0, 0, canvas.width, 0);
+  // 加入各个渐变色
+  bg.addColorStop(0, "#85c");
+  bg.addColorStop(1, "#85c");
+  ctx.fillStyle = bg;
+  ctx.beginPath();
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.closePath();
+  ctx.fill();
+
+  // add bg2
+  const bg2 = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  bg2.addColorStop(0, "#fff");
+  bg2.addColorStop(1, "#999");
+  ctx.fillStyle = bg2;
+  ctx.beginPath();
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+  </code></pre>
+  <p>代码都很直观, 需要注意的是多重背景设定前需要将<code>context</code>的模式设定为<code>multiply</code>, 否则之前的会被后面所覆盖~</p>
+
+  <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
   <script>
     (function () {
 
-      const connection = new WebSocket('ws://localhost:8888');
+      const connection = new WebSocket('ws://10.12.167.237:8888');
       connection.addEventListener('open', e => {
         console.log('dev ws connected!');
       })
@@ -150,7 +192,7 @@
         drawBG(canvas);
         // console.log(points);
         for (let i = 0; i < points.length; i++) {
-          let rand = Number((Math.random()).toFixed(2)) / 10;
+          let rand = Number((Math.random()).toFixed(2)) / 8;
           const currentPoint = points[i];
           if (currentPoint.moveDirection === '+y') {
             currentPoint['y'] += rand;
@@ -179,6 +221,7 @@
 
     })()
   </script>
+  <script src='./prism.js' type="text/javascript"></script>
 </body>
 
 </html>

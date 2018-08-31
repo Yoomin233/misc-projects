@@ -11,4 +11,20 @@ body {
   padding: 0;
   margin: 0;
   font-size: 16px;
+  font-family: "Microsoft Yahei", 微软雅黑, Tahoma, Arial, Helvetica, STHeiti;
+}
+p {
+  padding: 0 2vw;
+  line-height: 1.8;
+}
+code {
+  display: inline-block;
+  background-color: #e5e5e5;
+  font-family: "Courier New", Courier, monospace;
+  padding: 0 0.5em;
+  vertical-align: bottom;
+  white-space: initial;
+  white-space: pre;
+  overflow: scroll;
+  max-width: 100%;
 }
