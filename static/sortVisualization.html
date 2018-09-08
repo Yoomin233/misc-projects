@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    div.sort {
+      padding: 20px;
+      border: 1px solid black;
+      position: relative;
+      margin: 40px auto;
+      height: 60px;
+    }
+
+    div.sort::before {
+      content: attr(class);
+      position: absolute;
+      left: 1em;
+      top: -.8em;
+      padding: 0 .5em;
+      background-color: #fff;
+    }
+
+    div.block {
+      position: absolute;
+      top: 20px;
+      width: 50px;
+      height: 50px;
+      /* left: 20px; */
+      border: 1px solid black;
+      line-height: 50px;
+      text-align: center;
+      transition: all .8s ease;
+    }
+  </style>
+  <title>排序算法可视化</title>
+</head>
+
+<body>
+  <div class="sort bubbleSort">
+
+  </div>
+  <script>
+    const connection = new WebSocket('ws://localhost:8888');
+    connection.addEventListener('open', e => {
+      console.log('dev ws connected!');
+    })
+    connection.addEventListener('message', e => {
+      if (event.data === 'file changed') {
+        setTimeout(location.reload.bind(location), 500);
+      }
+    })
+
+    const arr = [4, 10, 2, 6, 7, 13, 8, 9, 1, 0];
+    // createSortElements
+    document.querySelectorAll('div.sort').forEach(containerElem => {
+      const sortName = containerElem.classList[1];
+      arr.forEach((arrElem, index) => {
+        const block = document.createElement('div');
+        block.setAttribute('class', `block ${sortName}`);
+        block.style.left = `${index * 60 + 20}px`
+        block.innerText = arrElem;
+        block.dataset.index = index;
+        containerElem.appendChild(block);
+      })
+    })
+    const wait = delay => new Promise(resolve => setTimeout(resolve, delay));
+    async function swap(elem, arr, i, j) {
+      const children = elem.children;
+      let iChildren;
+      let jChildren;
+      for (let k = 0; k < children.length; k++) {
+        if (children[k].style.left === i * 60 + 20 + 'px') {
+          iChildren = children[k];
+        }
+        if (children[k].style.left === j * 60 + 20 + 'px') {
+          jChildren = children[k];
+        }
+      }
+      const iChildrenLeft = iChildren.style.left;
+      const jChildrenLeft = jChildren.style.left;
+      iChildren.style.left = jChildrenLeft;
+      jChildren.style.left = iChildrenLeft;
+      await wait(1000);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    async function bubbleSort(elem, arr) {
+      const sortArr = arr.slice();
+      for (let i = 0; i < sortArr.length; i++) {
+        for (let j = 0; j < sortArr.length - 1; j++) {
+          if (sortArr[j] > sortArr[j + 1]) {
+            // [sortArr[j], sortArr[j + 1]] = [sortArr[j + 1], sortArr[j]];
+            await swap(elem, sortArr, j, j + 1)
+          }
+        }
+      }
+      console.log(sortArr);
+      return sortArr;
+    }
+    bubbleSort(document.querySelector('div.bubbleSort'), arr);
+  </script>
+</body>
+
+</html>

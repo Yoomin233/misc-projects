@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    button {
+      position: relative;
+    }
+
+    button::before {
+      content: '';
+      width: 0%;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      background-color: green;
+      transition: all 3s ease;
+    }
+
+    button.holding::before {
+      width: 100%;
+
+    }
+  </style>
+  <title>长按按钮</title>
+</head>
+
+<body>
+  <p>
+    <button>长按按钮!</button>
+  </p>
+  <script>
+    const btn = document.querySelector('button')
+
+    function addClickAndLongClick(elem, clickFn, longClickFn, mousedownFn, mouseupFn) {
+      let mousedown = false;
+      elem.addEventListener('mousedown', e => {
+        mousedown = true;
+        mousedownFn && mousedownFn.call(elem, e);
+        setTimeout(() => {
+          if (mousedown) {
+            longClickFn.call(elem, e);
+            mousedown = false;
+          }
+        }, 1000);
+      })
+      elem.addEventListener('mouseup', e => {
+        mouseupFn && mouseupFn.call(elem, e);
+        if (mousedown) {
+          clickFn.call(elem, e);
+          mousedown = false;
+        }
+      })
+    }
+
+    addClickAndLongClick(btn, () => console.log('click!'), () => {
+      console.log('long click!');
+    }, (e) => {
+      e.target.classList.add('holding');
+    }, e => e.target.classList.remove('holding'));
+  </script>
+</body>
+
+</html>
