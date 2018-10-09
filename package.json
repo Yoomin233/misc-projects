@@ -1,7 +1,11 @@
 {
-  "name": "moveCrate",
+  "name": "misc-projects",
   "version": "1.0.0",
-  "description": "",
+  "description": "my boilerplate for quick develop simple html5 pages",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YueminHu/misc-projects.git"
+  },
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

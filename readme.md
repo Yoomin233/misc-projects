@@ -27,6 +27,7 @@ connection.addEventListener("message", e => {
   }
 });
 ```
+或者直接复制`./static/template.html`开始coding!...
 
 之后`npm run start`, 访问`localhost:8888/`+相应文件即可.
 当`./static`文件系统上的文件更改时, 浏览器端会自动刷新页面.
