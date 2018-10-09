@@ -56,15 +56,15 @@
   <script>
     (function () {
 
-      const connection = new WebSocket('ws://10.12.167.237:8888');
-      connection.addEventListener('open', e => {
-        console.log('dev ws connected!');
-      })
-      connection.addEventListener('message', e => {
-        if (event.data === 'file changed') {
-          setTimeout(location.reload.bind(location), 500);
-        }
-      })
+      // const connection = new WebSocket('ws://10.12.167.237:8888');
+      // connection.addEventListener('open', e => {
+      //   console.log('dev ws connected!');
+      // })
+      // connection.addEventListener('message', e => {
+      //   if (event.data === 'file changed') {
+      //     setTimeout(location.reload.bind(location), 500);
+      //   }
+      // })
       const canvas = document.getElementsByTagName('canvas')[0];
       const context = canvas.getContext('2d');
       const canvasDimensions = canvas.getBoundingClientRect();
