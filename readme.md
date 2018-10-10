@@ -33,8 +33,10 @@ connection.addEventListener("message", e => {
 之后`npm run start`, 访问`localhost:8888/`+相应文件即可.
 当`./static`文件系统上的文件更改时, 浏览器端会自动刷新页面.
 
-### 打包
+### 生产环境打包
 
 ```sh
-./node_modules/.bin/webpack-cli --progress --env.dirname=${dirname} --env.NODE_ENV=${production | development}
+./node_modules/.bin/webpack --config ./webpack.config.production.js --env.dirname=${dirname}
 ```
+
+***注意, 此时所有资源(图片, js文件)的路径均指向与`index.html`同文件夹!
